@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>دفترچه تلفن</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body class="bg-gray-100 min-h-screen flex flex-col p-4">
+    <div class="bg-white rounded-lg shadow-lg w-full max-w-4xl p-6 mx-auto">
+        <div class="flex items-center justify-center mb-6">
+            <svg class="w-8 h-8 text-blue-600 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"></path>
+            </svg>
+            <h1 class="text-2xl font-bold text-gray-800">دفترچه تلفن</h1>
+        </div>
+        
+        <!-- پیام موقت -->
+        <div id="toast" class="text-center"></div>
+
+        <!-- فرم افزودن مخاطب -->
+        <div class="mb-6">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <input id="nameInput" type="text" placeholder="نام و نام خانوادگی" class="border rounded-lg p-2 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                <input id="phoneInput" type="text" placeholder="شماره تلفن" maxlength="13" class="border rounded-lg p-2 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                <input id="emailInput" type="text" placeholder="ایمیل" class="border rounded-lg p-2 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                <div class="flex gap-2">
+                    <select id="categorySelect" class="border rounded-lg p-2 flex-1 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        <option value="">انتخاب دسته‌بندی</option>
+                        <option value="بدون دسته‌بندی">بدون دسته‌بندی</option>
+                        <option value="خانواده">خانواده</option>
+                        <option value="دوستان">دوستان</option>
+                        <option value="همکاران">همکاران</option>
+                    </select>
+                    <input id="newCategoryInput" type="text" placeholder="دسته‌بندی جدید" class="border rounded-lg p-2 flex-1 focus:outline-none focus:ring-2 focus:ring-blue-500 hidden">
+                    <button id="toggleNewCategory" class="bg-gray-200 text-gray-700 px-3 py-2 rounded-lg hover:bg-gray-300 transition">+ جدید</button>
+                </div>
+            </div>
+            <button id="addContactBtn" class="mt-4 bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition">افزودن مخاطب</button>
+        </div>
+
+        <!-- مودال هشدار مخاطب تکراری (نام) -->
+        <div id="duplicateNameModal" class="hidden fixed inset-0 bg-gray-600 bg-opacity-50 flex items-center justify-center">
+            <div class="bg-white rounded-lg p-6 w-full max-w-lg">
+                <h2 class="text-lg font-semibold text-gray-800 mb-4">نام تکراری یافت شد</h2>
+                <p class="text-gray-600 mb-4">مخاطب با این نام قبلاً ثبت شده است. اطلاعات موجود:</p>
+                <div id="duplicateNameList" class="mb-4 max-h-64 overflow-y-auto"></div>
+                <div class="flex justify-end gap-2">
+                    <button id="cancelDuplicateNameBtn" class="bg-gray-200 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-300 transition">لغو</button>
+                    <button id="addDuplicateNameBtn" class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition">افزودن</button>
+                    <button id="editDuplicateNameBtn" class="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition">ویرایش</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- مودال هشدار مخاطب تکراری (تلفن) -->
+        <div id="duplicatePhoneModal" class="hidden fixed inset-0 bg-gray-600 bg-opacity-50 flex items-center justify-center">
+            <div class="bg-white rounded-lg p-6 w-full max-w-lg">
+                <h2 class="text-lg font-semibold text-gray-800 mb-4">شماره تلفن تکراری یافت شد</h2>
+                <p class="text-gray-600 mb-4">مخاطب با این شماره تلفن قبلاً ثبت شده است. اطلاعات موجود:</p>
+                <div id="duplicatePhoneList" class="mb-4 max-h-64 overflow-y-auto"></div>
+                <div class="flex justify-end gap-2">
+                    <button id="cancelDuplicatePhoneBtn" class="bg-gray-200 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-300 transition">لغو</button>
+                    <button id="addDuplicatePhoneBtn" class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition">افزودن</button>
+                    <button id="editDuplicatePhoneBtn" class="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition">ویرایش</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- تنظیمات -->
+        <div class="mb-6">
+            <button id="toggleSettings" class="bg-gray-200 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-300 transition">تنظیمات</button>
+            <div id="settingsPanel" class="hidden mt-4 p-4 border rounded-lg bg-gray-50">
+                <h2 class="text-lg font-semibold text-gray-800 mb-2">تنظیمات</h2>
+                <!-- حذف دسته‌بندی -->
+                <div class="mb-4">
+                    <h3 class="text-md font-medium text-gray-700 mb-2">حذف دسته‌بندی</h3>
+                    <select id="deleteCategorySelect" class="border rounded-lg p-2 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        <option value="">انتخاب دسته‌بندی برای حذف</option>
+                    </select>
+                    <button id="deleteCategoryBtn" class="mt-2 bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 transition">حذف دسته‌بندی</button>
+                </div>
+                <!-- آپلود فایل -->
+                <div class="mb-4">
+                    <h3 class="text-md font-medium text-gray-700 mb-2">وارد کردن فایل</h3>
+                    <input id="importFileInput" type="file" accept=".csv" class="border rounded-lg p-2 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    <button id="importFileBtn" class="mt-2 bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition">وارد کردن</button>
+                </div>
+                <!-- حذف همه مخاطبین -->
+                <div class="mb-4">
+                    <h3 class="text-md font-medium text-gray-700 mb-2">حذف همه مخاطبین</h3>
+                    <button id="deleteAllContactsBtn" class="bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 transition">حذف همه مخاطبین</button>
+                </div>
+                <!-- بررسی و حذف مخاطبین تکراری -->
+                <div>
+                    <h3 class="text-md font-medium text-gray-700 mb-2">حذف مخاطبین تکراری</h3>
+                    <button id="deleteDuplicatesBtn" class="bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 transition">بررسی و حذف مخاطبین تکراری</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- مودال حذف مخاطبین تکراری -->
+        <div id="deleteDuplicatesModal" class="hidden fixed inset-0 bg-gray-600 bg-opacity-50 flex items-center justify-center">
+            <div class="bg-white rounded-lg p-6 w-full max-w-lg">
+                <h2 class="text-lg font-semibold text-gray-800 mb-4">مخاطبین تکراری</h2>
+                <p class="text-gray-600 mb-4">مخاطبین زیر بر اساس نام یا شماره تلفن تکراری هستند. حداقل یک مخاطب از هر گروه باید حفظ شود:</p>
+                <div id="duplicatesList" class="mb-4 max-h-64 overflow-y-auto"></div>
+                <div class="flex justify-end gap-2">
+                    <button id="cancelDeleteDuplicatesBtn" class="bg-gray-200 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-300 transition">لغو</button>
+                    <button id="applyDuplicatesBtn" class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition">اعمال</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- جستجو و فیلتر -->
+        <div class="flex flex-col md:flex-row gap-4 mb-6">
+            <input id="searchInput" type="text" placeholder="جستجو بر اساس نام..." class="border rounded-lg p-2 flex-1 focus:outline-none focus:ring-2 focus:ring-blue-500">
+            <div class="flex gap-2">
+                <select id="categoryFilter" class="border rounded-lg p-2 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    <option value="">همه دسته‌بندی‌ها</option>
+                    <option value="بدون دسته‌بندی">بدون دسته‌بندی</option>
+                    <option value="خانواده">خانواده</option>
+                    <option value="دوستان">دوستان</option>
+                    <option value="همکاران">همکاران</option>
+                </select>
+                <button id="exportCsvBtn" class="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition">ذخیره مخاطبین</button>
+            </div>
+        </div>
+
+        <!-- فرم ویرایش مخاطب (مخفی) -->
+        <div id="editModal" class="hidden fixed inset-0 bg-gray-600 bg-opacity-50 flex items-center justify-center">
+            <div class="bg-white rounded-lg p-6 w-full max-w-md">
+                <h2 class="text-lg font-semibold text-gray-800 mb-4">ویرایش مخاطب</h2>
+                <input id="editNameInput" type="text" placeholder="نام و نام خانوادگی" class="border rounded-lg p-2 w-full mb-2 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                <input id="editPhoneInput" type="text" placeholder="شماره تلفن" maxlength="13" class="border rounded-lg p-2 w-full mb-2 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                <input id="editEmailInput" type="text" placeholder="ایمیل" class="border rounded-lg p-2 w-full mb-2 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                <div class="flex gap-2 mb-2">
+                    <select id="editCategorySelect" class="border rounded-lg p-2 flex-1 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        <option value="">انتخاب دسته‌بندی</option>
+                        <option value="بدون دسته‌بندی">بدون دسته‌بندی</option>
+                    </select>
+                    <input id="editNewCategoryInput" type="text" placeholder="دسته‌بندی جدید" class="border rounded-lg p-2 flex-1 focus:outline-none focus:ring-2 focus:ring-blue-500 hidden">
+                    <button id="toggleEditNewCategory" class="bg-gray-200 text-gray-700 px-3 py-2 rounded-lg hover:bg-gray-300 transition">+ جدید</button>
+                </div>
+                <div class="flex justify-end gap-2">
+                    <button id="saveEditBtn" class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition">ذخیره</button>
+                    <button id="cancelEditBtn" class="bg-gray-200 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-300 transition">لغو</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- لیست مخاطبین -->
+        <div class="overflow-x-auto">
+            <table class="w-full table-auto border-collapse">
+                <thead>
+                    <tr class="bg-gray-200">
+                        <th class="p-3 text-right"><input id="selectAll" type="checkbox"></th>
+                        <th class="p-3 text-right">نام و نام خانوادگی</th>
+                        <th class="p-3 text-right">شماره تلفن</th>
+                        <th class="p-3 text-right">ایمیل</th>
+                        <th class="p-3 text-right">دسته‌بندی</th>
+                        <th class="p-3 text-right">عملیات</th>
+                    </tr>
+                </thead>
+                <tbody id="contactList" class="divide-y divide-gray-200"></tbody>
+            </table>
+        </div>
+
+        <!-- صفحه‌بندی -->
+        <div id="pagination" class="flex justify-between items-center mt-4 hidden">
+            <button id="prevPage" class="bg-gray-200 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-300 transition" disabled>قبلی</button>
+            <span id="pageInfo" class="text-gray-700"></span>
+            <button id="nextPage" class="bg-gray-200 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-300 transition" disabled>بعدی</button>
+        </div>
+    </div>
+
+    <!-- فوتر -->
+    <footer class="text-center mt-12">
+        <a href="https://github.com/Navid-8820" target="_blank" class="inline-flex items-center space-x-2 text-gray-700 hover:text-black">
+            <svg class="w-6 h-6 fill-current" viewBox="0 0 16 16" version="1.1" xmlns="http://www.w3.org/2000/svg">
+                <path d="M8 0C3.58 0 0 3.58 0 8a8 8 0 005.47 7.59c.4.07.55-.17.55-.38 
+                         0-.19-.01-.82-.01-1.49-2 .37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52
+                         -.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78
+                         -.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 
+                         0 0 .67-.21 2.2.82A7.68 7.68 0 018 4.69c.68.003 1.37.092 2.01.27 1.53-1.04 
+                         2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 
+                         1.27.82 2.15 0 3.07-1.87 3.75-3.65 
+                         3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 
+                         0 .21.15.46.55.38A8.01 8.01 0 0016 8c0-4.42-3.58-8-8-8z"/>
+            </svg>
+            <span>Navid</span>
+        </a>
+        <p class="text-gray-600 mt-2">نکته: برای جلوگیری از از دست رفتن اطلاعات، حتماً فایل مخاطبان خود را با استفاده از گزینه «ذخیره مخاطبین» ذخیره کنید.</p>
+    </footer>
+
+    <script src="script.js"></script>
+</body>
+</html>

@@ -1,0 +1,21 @@
+body {
+    font-family: 'Vazirmatn', sans-serif;
+}
+
+@font-face {
+    font-family: 'Vazirmatn';
+    src: url('https://cdn.fontcdn.ir/Font/Persian/Vazirmatn/Vazirmatn-Regular.woff2') format('woff2');
+}
+
+#toast {
+    position: fixed;
+    top: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    background-color: #10b981;
+    color: white;
+    padding: 10px 20px;
+    border-radius: 8px;
+    display: none;
+    z-index: 1000;
+}
